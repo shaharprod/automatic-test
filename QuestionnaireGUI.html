@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>יצירת שאלון עם ציונים אוטומטיים</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      padding: 20px;
+      background: #f5f5f5;
+      direction: rtl;
+    }
+    .container {
+      max-width: 100%;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1a73e8;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    h2 {
+      color: #5f6368;
+      font-size: 16px;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+    .instructions {
+      background: #e8f0fe;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-right: 4px solid #1a73e8;
+    }
+    .instructions ol {
+      margin: 10px 0;
+      padding-right: 20px;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      border: 2px solid #dadce0;
+      border-radius: 5px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      direction: rtl;
+      resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+    .example {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      direction: rtl;
+    }
+    .answers-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #dadce0;
+      border-radius: 5px;
+      font-size: 14px;
+      direction: rtl;
+      margin-bottom: 10px;
+    }
+    .answers-help {
+      font-size: 12px;
+      color: #5f6368;
+      margin-top: 5px;
+    }
+    button {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    button:disabled {
+      background: #dadce0;
+      cursor: not-allowed;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 15px;
+      color: #1a73e8;
+    }
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .result.success {
+      background: #e8f5e9;
+      border-right: 4px solid #4caf50;
+    }
+    .result.error {
+      background: #ffebee;
+      border-right: 4px solid #f44336;
+    }
+    .result a {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    .result a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 יצירת שאלון עם ציונים אוטומטיים</h1>
+    
+    <div class="instructions">
+      <strong>הוראות קצרות:</strong>
+      <ol>
+        <li>הכנס את השאלון שלך למטה (עם התשובות)</li>
+        <li>הכנס את התשובות הנכונות (למשל: שאלה 1 = א, שאלה 2 = ב)</li>
+        <li>לחץ "צור פורם" והכל יעבוד אוטומטית!</li>
+      </ol>
+    </div>
+
+    <h2>1️⃣ הכנס את השאלון שלך:</h2>
+    <textarea id="questionnaire" placeholder="שאלה 1. השאלה שלך?
+א. תשובה אפשרית 1
+ב. תשובה אפשרית 2
+ג. תשובה אפשרית 3
+ד. תשובה אפשרית 4
+
+שאלה 2. שאלה נוספת?
+א. תשובה אפשרית 1
+ב. תשובה אפשרית 2
+ג. תשובה אפשרית 3
+ד. תשובה אפשרית 4"></textarea>
+    
+    <div class="example">
+דוגמה:
+שאלה 1. מהו העיקרון המרכזי של "למידה מונחית"?
+א. מתן תשובה מלאה ומקיפה
+ב. שימוש במודלים מתקדמים
+ג. בניית דיאלוג אינטראקטיבי שמפרק בעיות ומקדם את הלומד צעד אחר צעד
+ד. יצירת מחוונים מותאמים אישית אוטומטית
+    </div>
+
+    <h2>2️⃣ הכנס את התשובות הנכונות:</h2>
+    <textarea id="correctAnswers" class="answers-input" placeholder="הזן בפורמט: שאלה 1 = א, שאלה 2 = ב, שאלה 3 = ג
+
+או בפורמט JSON:
+שאלה 1: א
+שאלה 2: ב
+שאלה 3: ג"></textarea>
+    <div class="answers-help">
+      💡 דוגמה: אם השאלה 1 התשובה הנכונה היא "ג", השאלה 2 התשובה הנכונה היא "א", וכו'
+      <br>
+      הזן כך: <strong>01:ג, 02:א, 03:ב</strong> (מספר שאלה:תשובה)
+    </div>
+
+    <button onclick="createForm()">🚀 צור פורם עכשיו!</button>
+    
+    <div id="loading" class="loading">
+      ⏳ יוצר את הפורם... אנא המתן...
+    </div>
+    
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    function createForm() {
+      const questionnaire = document.getElementById('questionnaire').value.trim();
+      const answersText = document.getElementById('correctAnswers').value.trim();
+      
+      if (!questionnaire) {
+        showResult(false, 'אנא הכנס שאלון');
+        return;
+      }
+
+      // פרסור תשובות נכונות
+      let correctAnswers = {};
+      
+      // נסה פורמט: 01:א, 02:ב, 03:ג
+      if (answersText) {
+        const pairs = answersText.split(',').map(s => s.trim());
+        pairs.forEach(function(pair) {
+          const match = pair.match(/(\d+)[:=]\s*([אבגד])/);
+          if (match) {
+            const qNum = match[1].padStart(2, '0');
+            const answer = match[2];
+            correctAnswers[qNum] = answer;
+          }
+        });
+      }
+      
+      // אם אין תשובות, השתמש בברירות מחדל
+      if (Object.keys(correctAnswers).length === 0) {
+        // נסה לזהות מהשאלון כמה שאלות יש
+        const questionMatches = questionnaire.match(/שאלה\s+(\d+)/g);
+        if (questionMatches) {
+          questionMatches.forEach(function(match) {
+            const num = match.replace(/שאלה\s+/, '').padStart(2, '0');
+            correctAnswers[num] = 'א'; // ברירת מחדל
+          });
+        }
+      }
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      document.querySelector('button').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').style.display = 'none';
+          document.querySelector('button').disabled = false;
+          
+          if (result.success) {
+            showResult(true, 'הפורם נוצר בהצלחה!', result.sheetUrl, result.formUrl);
+          } else {
+            showResult(false, result.message || 'אירעה שגיאה');
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').style.display = 'none';
+          document.querySelector('button').disabled = false;
+          showResult(false, 'שגיאה: ' + error.message);
+        })
+        .createFormFromGUI(questionnaire, JSON.stringify(correctAnswers));
+    }
+
+    function showResult(success, message, sheetUrl, formUrl) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.className = 'result ' + (success ? 'success' : 'error');
+      resultDiv.style.display = 'block';
+      
+      let html = '<strong>' + message + '</strong>';
+      
+      if (success && sheetUrl && formUrl) {
+        html += '<br><br>';
+        html += '📊 <a href="' + sheetUrl + '" target="_blank">פתח את ה-Google Sheet</a>';
+        html += '<br>';
+        html += '📝 <a href="' + formUrl + '" target="_blank">פתח את ה-Google Form</a>';
+        html += '<br><br>';
+        html += '💡 חשוב: הוסף טריגר ידנית כדי שהציונים יחושבו אוטומטית';
+        html += '<br>';
+        html += '⚙️ → Triggers → + Add Trigger → onFormSubmit → From form → On form submit';
+      }
+      
+      resultDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
+

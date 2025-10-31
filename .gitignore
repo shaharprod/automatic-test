@@ -1,0 +1,19 @@
+# מערכת הפעלה
+.DS_Store
+Thumbs.db
+
+# עורכים
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# קבצים זמניים
+*.tmp
+*.log
+~$*
+
+# קבצים אישיים (אם יש)
+config.local.js
+secrets.json
+
